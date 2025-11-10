@@ -1,0 +1,35 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Kitchen — Thunder Café</title>
+  <link rel="stylesheet" href="assets/styles.css">
+</head>
+<body>
+  <header><h2>Kitchen Display</h2></header>
+  <main>
+    <div id="k-orders">Loading...</div>
+  </main>
+
+  <script>
+    // Replace with your deployed backend URL after deploy
+    const API_BASE = 'REPLACE_WITH_API_BASE';
+
+    async function load(){
+      try {
+        const res = await fetch(API_BASE + '/api/orders?status=pending');
+        const data = await res.json();
+        const root = document.getElementById('k-orders');
+        if(!data || data.length===0) root.innerHTML = '<p>No pending orders.</p>';
+        else root.innerHTML = data.map(o => `<div class="kcard">#${o.id} T:${o.table_id}<br>${o.items.map(i=>i.name+' x'+i.quantity).join(', ')}<br><button onclick="mark(${o.id})">Mark Ready</button></div>`).join('');
+      } catch(e) { document.getElementById('k-orders').innerText = 'Error'; }
+    }
+    async function mark(id){
+      await fetch(API_BASE + '/api/update-status', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({id, status:'ready'})});
+      load();
+    }
+    load();
+    setInterval(load, 4000);
+  </script>
+</body>
+</html>

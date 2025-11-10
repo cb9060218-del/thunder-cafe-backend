@@ -1,0 +1,31 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Admin — Thunder Café</title>
+  <link rel="stylesheet" href="assets/styles.css">
+</head>
+<body>
+  <header><h2>Admin — Orders</h2></header>
+  <main>
+    <div id="orders">Loading orders...</div>
+  </main>
+
+  <script>
+    // Replace with your deployed backend URL after deploy
+    const API_BASE = 'REPLACE_WITH_API_BASE';
+
+    async function fetchOrders(){
+      try {
+        const res = await fetch(API_BASE + '/api/orders');
+        const data = await res.json();
+        const root = document.getElementById('orders');
+        if (!data || data.length === 0) root.innerHTML = '<p>No orders yet.</p>';
+        else root.innerHTML = data.map(o => `<div class="order-card"><b>Order ${o.id}</b> | Table: ${o.table_id} | Status: ${o.status}<br>${o.items.map(i=>i.name+' x'+i.quantity).join('<br>')}</div>`).join('');
+      } catch(e) { document.getElementById('orders').innerText = 'Error loading orders'; }
+    }
+    fetchOrders();
+    setInterval(fetchOrders, 5000);
+  </script>
+</body>
+</html>
